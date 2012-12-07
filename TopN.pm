@@ -76,7 +76,7 @@ sub add {
     my $count = $counts->{$value};
 
     if ( $count ) {
-        $order->{$count+1}->{$value} = $order->{$count}->{$value};
+        $order->{$count+1}->{$value} = delete $order->{$count}->{$value};
         $counts->{$value}++;
     } else {
         $order->{1}->{$value} = 1;
