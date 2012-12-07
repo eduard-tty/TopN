@@ -1,4 +1,4 @@
 TopN
 ====
 
-Coupt counts of numbers and give a top N
+Gives counts of numbers and give a top N/
