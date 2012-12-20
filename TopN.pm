@@ -149,19 +149,43 @@ sub get {
     return $self->{counts}->{$value};
 };
 
+
+=item size()
+
+=cut
+
+sub size {
+    my ($self) = @_;
+
+    return scalar(keys(%{$self->{counts}}));
+};
+
+=item expire_size()
+
+=cut
+
+sub expire_size {
+    my ($self) = @_;
+
+    return scalar(@{$self->{expire}});
+};
+
+
+
 1;
 
-package main;
-use strict;
-use warnings;
 
-my $counts = TopN->new(60,1);
-$counts->add( int(rand(1_000_000+1)) ) for 1 .. 10_000_000;
+# package main;
+# use strict;
+# use warnings;
+
+# my $counts = TopN->new(60,1);
+# $counts->add( int(rand(1_000_000+1)) ) for 1 .. 10_000_000;
 
 
-foreach my $value ( $counts->top(50) ) {
-    print "$value added " . $counts->get($value) . " times\n";
-};
-print "Done\n";
+# foreach my $value ( $counts->top(50) ) {
+#     print "$value added " . $counts->get($value) . " times\n";
+# };
+# print "Done\n";
 
 1;
