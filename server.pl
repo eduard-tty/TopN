@@ -7,13 +7,13 @@ use Storable;
 
 use TopN;
 
-my ($hostname, $port) = @ARGV;
+my ($hostname, $port, $expire) = @ARGV;
 $hostname ||= 'localhost';
-$port ||= 20001;
-
+$port     ||= 20001;
+$expire   ||= 3*24*60*60;
 
 my $server;
-my $counts = TopN->new( 3*24*60*60 );
+my $counts = TopN->new( $expire );
 
 my %command_handlers = (
     count  => sub { $counts->add(shift); return; },
@@ -51,7 +51,7 @@ POE::Component::Server::TCP->new(
         my ($heap, $message) = @_[HEAP, ARG0];
         my ($command, @args) = split(/\s/, $message);
         my $response = '';
-        if ( my $handler = $command_handlers{$command} ) {
+        if ( my $handler = $command_handlers{$command || ''} ) {
             $response = $handler->(@args);
         };
         if ( $response ) {
