@@ -118,7 +118,9 @@ sub top {
         $i += scalar(@values);
     };
 
-    return @topn[0 .. $n-1];
+    
+
+    return scalar(@topn) < $n ? @topn : @topn[0 .. $n-1];
 };
 
 =item expire($n)
