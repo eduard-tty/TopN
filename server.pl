@@ -21,28 +21,20 @@ my %command_handlers = (
     quit   => sub { exit(0); },
     save   => sub {
         (my $name = localtime . '.topn') =~ s/\s+/-/g;
-        save_topn($counts, $name); 
+        store($counts, $name);
         return;
     },
-    load   => sub { load_topn(shift); return; },
+    load   => sub {
+        $counts = bless retrieve(shift), 'TopN';
+        return;
+    },
     info   => sub {
         my $template = "Number of counts  : %s\nExpire queue size : %s\n\n";
         my $info = sprintf($template, $counts->size(), $counts->expire_size() );
         return $info;
     },
+    expire => sub { $counts->expire(); return; },
 );
-
-sub save_topn  {
-    my ($counts, $name) = @_;
-    store($counts, $name);
-    return;
-}
-
-sub load_topn  {
-    my ($name) = @_;
-    $counts = bless retrieve($name), 'TopN';
-    return;
-}
 
 POE::Component::Server::TCP->new(
     Hostname => $hostname,
