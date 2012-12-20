@@ -205,6 +205,6 @@ sub test {
     print "Done\n";
 };
 
-test();
+## test();
 
 1;
