@@ -187,22 +187,22 @@ sub expire_size {
     return scalar(@{$self->{expire}});
 };
 
-
-
 1;
 
+package main;
+use strict;
+use warnings;
 
-# package main;
-# use strict;
-# use warnings;
+sub test {
+    my $counts = TopN->new(60,1);
+    $counts->add( int(rand(1_000_000+1)) ) for 1 .. 10_000_000;
 
-# my $counts = TopN->new(60,1);
-# $counts->add( int(rand(1_000_000+1)) ) for 1 .. 10_000_000;
+    foreach my $value ( $counts->top(50) ) {
+        print "$value added " . $counts->get($value) . " times\n";
+    };
+    print "Done\n";
+};
 
-
-# foreach my $value ( $counts->top(50) ) {
-#     print "$value added " . $counts->get($value) . " times\n";
-# };
-# print "Done\n";
+test();
 
 1;
