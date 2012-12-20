@@ -86,15 +86,7 @@ sub add {
     my $expire = $self->{expire};
     push(@$expire, [$self->{expire_in} + time(), $value ]);
 
-    my $times = 0;
-    while ( $times < $self->{expire_on_add} ) {
-        last if $expire->[0]->[0] > time();
-        my $expire_value = shift(@$expire)->[1];
-        my $expire_count = $counts->{$expire_value};
-        $order->{$expire_count-1}->{$expire_value} = delete $order->{$expire_count}->{$expire_value};
-        $counts->{$expire_value}--;
-        $times++;
-    }
+    $self->expire( $self->{expire_on_add} );
 
     return;
 };
@@ -114,15 +106,7 @@ TODO: Fix the order
 sub top {
     my ($self, $n) = @_;
 
-    my $order = $self->{order};
-    my $counts = $self->{counts};
-    my $expire = $self->{expire};
-    while ( $expire->[0]->[0] < time() ) {
-        my $expire_value = shift(@$expire)->[1];
-        my $expire_count = $counts->{$expire_value};
-        $order->{$expire_count-1}->{$expire_value} = delete $order->{$expire_count}->{$expire_value};
-        $counts->{$expire_value}--;
-    }
+    $self->expire();
 
     my $i = 0;
     my @topn = ();
@@ -135,6 +119,34 @@ sub top {
     };
 
     return @topn[0 .. $n-1];
+};
+
+=item expire($n)
+
+Expire up to $n items. If $n is not defined it will expire as much as possible.
+Returns the number of items actually expired.
+
+=cut
+
+sub expire {
+    my ($self, $limit) = @_;
+
+    my $order = $self->{order};
+    my $counts = $self->{counts};
+    my $expire = $self->{expire};
+
+    my $times = 0;
+    while ( @$expire ) {
+        last if defined($limit) and $times >= $limit;
+        last if $expire->[0]->[0] > time();
+        my $expire_value = shift(@$expire)->[1];
+        my $expire_count = $counts->{$expire_value};
+        $order->{$expire_count-1}->{$expire_value} = delete $order->{$expire_count}->{$expire_value};
+        $counts->{$expire_value}--;
+        $times++;
+    }
+
+    return $times;
 };
 
 =item get($value)
@@ -152,6 +164,9 @@ sub get {
 
 =item size()
 
+Returns the number of different element a count is kept for. So if you count 1,2,1,3,2,1 it would
+return 3 for 1,2 and 3.
+
 =cut
 
 sub size {
@@ -161,6 +176,8 @@ sub size {
 };
 
 =item expire_size()
+
+Returns the number of count actions yet to be expired.
 
 =cut
 
