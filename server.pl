@@ -16,23 +16,22 @@ my $counts = TopN->new( $expire );
 
 my %command_handlers = (
     count  => sub { $counts->add(shift); return; },
-    top    => sub { return join(', ',  $counts->top(shift) );  },
+    expire => sub { $counts->expire(); return; },
+    info   => sub {
+        my $template = "Number of counts  : %s\nExpire queue size : %s\n\n";
+        return sprintf($template, $counts->size(), $counts->expire_size() );
+    },
+    load   => sub {
+        $counts = bless retrieve(shift), 'TopN';
+        return;
+    },
     quit   => sub { exit(0); },
     save   => sub {
         (my $name = localtime . '.topn') =~ s/\s+/-/g;
         store($counts, $name);
         return;
     },
-    load   => sub {
-        $counts = bless retrieve(shift), 'TopN';
-        return;
-    },
-    info   => sub {
-        my $template = "Number of counts  : %s\nExpire queue size : %s\n\n";
-        my $info = sprintf($template, $counts->size(), $counts->expire_size() );
-        return $info;
-    },
-    expire => sub { $counts->expire(); return; },
+    top    => sub { return join(', ',  $counts->top(shift) );  },
 );
 
 POE::Component::Server::TCP->new(
