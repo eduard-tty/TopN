@@ -12,7 +12,6 @@ $hostname ||= 'localhost';
 $port     ||= 20001;
 $expire   ||= 3*24*60*60;
 
-my $server;
 my $counts = TopN->new( $expire );
 
 my %command_handlers = (
